@@ -1,0 +1,20 @@
+{
+  "name": "werkstuk",
+  "version": "1.0.0",
+  "description": "werkstuk cloud",
+  "main": "index.js",
+  "scripts": {
+    "start": "index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EHB-TI/werkstuk2122-tanguyrousseau1.git"
+  },
+  "author": "tanguy rousseau",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/EHB-TI/werkstuk2122-tanguyrousseau1/issues"
+  },
+  "homepage": "https://github.com/EHB-TI/werkstuk2122-tanguyrousseau1#readme"
+}

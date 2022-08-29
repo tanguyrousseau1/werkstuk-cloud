@@ -1,5 +1,0 @@
-CREATE TABLE [dbo].[Test]
-(
-  [Test_ID] INT NOT NULL PRIMARY KEY
-)
-
