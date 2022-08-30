@@ -16,5 +16,12 @@
   "bugs": {
     "url": "https://github.com/EHB-TI/werkstuk2122-tanguyrousseau1/issues"
   },
-  "homepage": "https://github.com/EHB-TI/werkstuk2122-tanguyrousseau1#readme"
+  "homepage": "https://github.com/EHB-TI/werkstuk2122-tanguyrousseau1#readme",
+  "dependencies": {
+    "chart": "^0.1.2",
+    "express": "^4.18.1",
+    "jquery": "^3.6.1",
+    "node-fetch": "^3.2.10",
+    "socket.io": "^4.5.1"
+  }
 }
