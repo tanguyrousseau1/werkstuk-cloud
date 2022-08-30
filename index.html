@@ -181,12 +181,12 @@ function addData(data) {
         if(data.records[i].dateRep == date) {
             if (top == "deaths") {
                 top_data.push({
-                    x: data.records[i].countriesAndTerritories,
+                    label: data.records[i].countriesAndTerritories,
                     y: data.records[i].deaths
                 })
             } else {
                 top_data.push({
-                    x: data.records[i].countriesAndTerritories,
+                    label: data.records[i].countriesAndTerritories,
                     y: data.records[i].cases
                 })
             }
