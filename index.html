@@ -1,12 +1,12 @@
 <!-- <html>
     <head>
-        <script type="text/javascript" src="node_modules/chart.js/dist/Chart.js"></script>-->
-        <!-- <script type="text/javascript" src="./graph1.js"></script> -->
-        <!-- <script type="text/javascript" src="node_modules/chart.js/dist/Chart.js"></script>
-        <script src="node_modules/jquery/dist/jquery.js"></script> -->
-        <!-- <script src="graph1.js"></script>     -->
+        <script type="text/javascript" src="node_modules/chart.js/dist/Chart.js"></script>
+        <script type="text/javascript" src="./graph1.js"></script>
+        <script type="text/javascript" src="node_modules/chart.js/dist/Chart.js"></script>
+        <script src="node_modules/jquery/dist/jquery.js"></script>
+        <script src="graph1.js"></script>
 
-        <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         
 
     </head>
@@ -30,7 +30,7 @@
 
 window.onload = function() {
 
-var cases = [];
+
 
 // var chart = new CanvasJS.Chart("chartContainer", {
 // 	animationEnabled: true,
@@ -103,26 +103,51 @@ var cases = [];
 // }
 
 var deaths = [];
+var cases = [];
+var country = "Afghanistan";
+var top = "deaths";
+var top_data = [];
+var date = "01/01/2020";
 
 var chart = new CanvasJS.Chart("chartContainer", {
 	animationEnabled: true,
 	theme: "light2",
 	title: {
-		text: "deaths"
+		text: "deaths and cases " + country
 	},
     axisX: {
         yValueFormatString: "DD MMM YYYY",
         intervalType: "day"
     },
 	axisY: {
-		title: "Deaths",
+		title: "Deaths and Cases",
 		titleFontSize: 24,
 		includeZero: true
 	},
 	data: [{
 		type: "line",
-		yValueFormatString: "#,### Deaths   ",
+		yValueFormatString: "#,### Deaths",
 		dataPoints: deaths
+	},
+    {
+        type: "line",
+		yValueFormatString: "#,### Cases   ",
+		dataPoints: cases
+    }]
+});
+
+var chart2 = new CanvasJS.Chart("chartContainer2", {
+	animationEnabled: true,
+	theme: "light2",
+	title:{
+		text: "Top " + top + " " + date
+	},
+	axisY: {
+		title: top
+	},
+	data: [{        
+		type: "column",  
+		dataPoints: top_data
 	}]
 });
 
@@ -130,31 +155,84 @@ var chart = new CanvasJS.Chart("chartContainer", {
 function addData(data) {
     json = data;
     deaths = [];
+    cases = [];
+    top_data = [];
     console.log("enter addData.");
     populateSelect(data);
+    populateDate(data);
     var length = data.records.length;
     console.log(length);
     console.log(country);
 	for (var i = 0; i < length; i++) {
         
         //console.log(data.records[i]);
-        if(data.records[i].countriesAndTerritories == country)
-		deaths.push({
-			x: new Date(data.records[i].year, data.records[i].month -1, data.records[i].day),
-			y: data.records[i].deaths
-		});
+        if(data.records[i].countriesAndTerritories == country){
+		    deaths.push({
+			    x: new Date(data.records[i].year, data.records[i].month -1, data.records[i].day),
+			    y: data.records[i].deaths
+		    });
+            cases.push({
+			    x: new Date(data.records[i].year, data.records[i].month -1, data.records[i].day),
+			    y: data.records[i].cases
+		    });
+        }
         //console.log(data.records[i].deaths);
-	}
-    console.log(deaths);
-	chart.render();
-    console.log(chart.data[0].dataPoints);
 
+        if(data.records[i].dateRep == date) {
+            if (top == "deaths") {
+                top_data.push({
+                    x: data.records[i].countriesAndTerritories,
+                    y: data.records[i].deaths
+                })
+            } else {
+                top_data.push({
+                    x: data.records[i].countriesAndTerritories,
+                    y: data.records[i].cases
+                })
+            }
+        }
+	}
+    top_data.sort(dynamicsort("y", "desc"));
+    top_data = top_data.slice(0, 10);
+    
+    console.log(deaths);
+    console.log(top_data);
+    chart.options.data[0].dataPoints = deaths;
+    chart.options.data[1].dataPoints = cases;
+    chart.options.title.text = "deaths and cases " + country;
+    chart2.options.data[0].dataPoints = top_data;
+    chart2.options.title.text = "Top " + top + " " + date;
+    chart2.options.axisY.title = top;
+    console.log(chart2.options.data[0].dataPoints)
+	chart.render();
+    chart2.render();
+}
+
+function dynamicsort(property,order) {
+    var sort_order = 1;
+    if(order === "desc"){
+        sort_order = -1;
+    }
+    return function (a, b){
+        // a should come before b in the sorted order
+        if(a[property] < b[property]){
+                return -1 * sort_order;
+        // a should come after b in the sorted order
+        }else if(a[property] > b[property]){
+                return 1 * sort_order;
+        // a and b are the same
+        }else{
+                return 0 * sort_order;
+        }
+    }
 }
 
 $.getJSON("https://opendata.ecdc.europa.eu/covid19/casedistribution/json/", addData);
 
 var countrySelect = document.getElementById("countrySelect");
-var country = "Afghanistan";
+var topSelect = document.getElementById('topSelect');
+var dataSelect = document.getElementById('dataSelect');
+
 var json;
 
 countrySelect.onchange = _ => {
@@ -163,6 +241,40 @@ countrySelect.onchange = _ => {
     addData(json);
 }
 
+dataSelect.onchange = _ => {
+    var value = dataSelect.options[dataSelect.selectedIndex].value;
+    date = value;
+    addData(json);
+}
+
+topSelect.onchange = _ => {
+    var value = topSelect.options[topSelect.selectedIndex].value;
+    top = value;
+    addData(json);
+}
+
+function populateDate(data){
+    console.log("enter populateDate");
+    var dates = [];
+    data.records.forEach(entry => {
+        var date = entry.dateRep;
+        if (!(dates.includes(date))) {
+            dates.push(date);
+        }
+    });
+
+    var i, L = dataSelect.options.length -1;
+    for(i = L; i>= 0; i--) {
+        dataSelect.remove(i);
+    }
+
+    dates.forEach(date => {
+        var value = document.createElement("option");
+        value.text = date;
+        value.value = date
+        dataSelect.add(value);
+    });
+}
 
 function populateSelect(data) {
     console.log("Entered PopulateSelect");
@@ -198,7 +310,15 @@ function populateSelect(data) {
         </select>
     </form>
 <div id="chartContainer" style="height: 370px; width: 100%;"></div>
+<form>
+    <select id="topSelect">
+        <option value="deaths">deaths</option>
+        <option value="cases">cases</option>
+    </select>
+    <select id="dataSelect"></select>
+</form>
+<div id="chartContainer2" style="height: 370px; width: 100%;"></div>
 
-<script src="canvasjs.min.js"></script>
+
 </body>
 </html>
